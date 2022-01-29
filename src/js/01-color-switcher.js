@@ -15,8 +15,11 @@ function onGetRandomBackgroundColor() {
   if (isActive) {
     return;
   }
+
   isActive = true;
+
   body.style.backgroundColor = getRandomHexColor();
+
   timerId = setInterval(() => {
     body.style.backgroundColor = getRandomHexColor();
   }, 1000);
@@ -24,4 +27,5 @@ function onGetRandomBackgroundColor() {
 
 function onStopChangeBackgroundColor() {
   clearInterval(timerId);
+  isActive = false;
 }
