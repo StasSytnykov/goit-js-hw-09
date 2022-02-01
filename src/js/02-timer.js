@@ -1,9 +1,16 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 require('flatpickr/dist/themes/dark.css');
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const myInput = document.querySelector('#datetime-picker');
 const inputButton = document.querySelector('[data-start]');
+const daysToEndAction = document.querySelector('[data-days]');
+const hoursToEndAction = document.querySelector('[data-hours]');
+const minutesToEndAction = document.querySelector('[data-minutes]');
+const secondsToEndAction = document.querySelector('[data-seconds]');
+
+inputButton.addEventListener('click', onGetTimeToEndAction);
 inputButton.setAttribute('disabled', 'true');
 
 let selectedDate = 0;
@@ -15,7 +22,7 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     if (selectedDates[0] < Date.now()) {
-      window.alert('Please choose a date in the future');
+      Notify.failure('Please choose a date in the future');
       inputButton.setAttribute('disabled', 'true');
       return;
     }
@@ -25,21 +32,25 @@ const options = {
   },
 };
 
-console.log(selectedDate);
 const fp = flatpickr(myInput, options); // flatpickr
-const timeToEndAction = Date.now() + selectedDate;
 
-function getTimeToEndAction() {
+function onGetTimeToEndAction() {
   setInterval(() => {
     const time = Date.now();
-    const currentTime = timeToEndAction - time;
+    const currentTime = selectedDate - time;
     console.log(currentTime);
-    const timer = convertMs(currentTime);
-    console.log(timer);
+    const { days, hours, minutes, seconds } = convertMs(currentTime);
+    console.log({ days, hours, minutes, seconds });
+    onShowTimeToEndAction({ days, hours, minutes, seconds });
   }, 1000);
 }
 
-// getTimeToEndAction();
+function onShowTimeToEndAction({ days, hours, minutes, seconds }) {
+  daysToEndAction.textContent = days;
+  hoursToEndAction.textContent = hours;
+  minutesToEndAction.textContent = minutes;
+  secondsToEndAction.textContent = seconds;
+}
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -49,13 +60,17 @@ function convertMs(ms) {
   const day = hour * 24;
 
   // Remaining days
-  const days = Math.floor(ms / day);
+  const days = addLeadingZero(Math.floor(ms / day));
   // Remaining hours
-  const hours = Math.floor((ms % day) / hour);
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
   // Remaining minutes
-  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
   // Remaining seconds
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+  const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
 
   return { days, hours, minutes, seconds };
+}
+
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
 }
