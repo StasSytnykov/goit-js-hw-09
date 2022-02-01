@@ -16,3 +16,21 @@ img {
   display: block;
   max-width: 100%;
 }
+
+.container {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.field {
+  display: inline-block;
+  font-size: 1.5em;
+  list-style-type: none;
+  padding: 1em;
+  text-transform: uppercase;
+}
+
+.value {
+  display: block;
+  font-size: 4.5rem;
+}
