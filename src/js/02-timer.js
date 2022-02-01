@@ -27,9 +27,9 @@ const options = {
       inputButton.setAttribute('disabled', 'true');
       return;
     }
+
     inputButton.removeAttribute('disabled');
     selectedDate = selectedDates[0].getTime();
-    console.log(selectedDate);
   },
 };
 
@@ -39,10 +39,10 @@ function onGetTimeToEndAction() {
   timerId = setInterval(() => {
     const time = Date.now();
     const currentTime = selectedDate - time;
-    console.log(currentTime);
     const { days, hours, minutes, seconds } = convertMs(currentTime);
-    console.log({ days, hours, minutes, seconds });
+
     onShowTimeToEndAction({ days, hours, minutes, seconds });
+
     onStopTimer();
   }, 1000);
 }
