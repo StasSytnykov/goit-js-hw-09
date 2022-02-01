@@ -9,6 +9,7 @@ const daysToEndAction = document.querySelector('[data-days]');
 const hoursToEndAction = document.querySelector('[data-hours]');
 const minutesToEndAction = document.querySelector('[data-minutes]');
 const secondsToEndAction = document.querySelector('[data-seconds]');
+let timerId = null;
 
 inputButton.addEventListener('click', onGetTimeToEndAction);
 inputButton.setAttribute('disabled', 'true');
@@ -35,14 +36,21 @@ const options = {
 const fp = flatpickr(myInput, options); // flatpickr
 
 function onGetTimeToEndAction() {
-  setInterval(() => {
+  timerId = setInterval(() => {
     const time = Date.now();
     const currentTime = selectedDate - time;
     console.log(currentTime);
     const { days, hours, minutes, seconds } = convertMs(currentTime);
     console.log({ days, hours, minutes, seconds });
     onShowTimeToEndAction({ days, hours, minutes, seconds });
+    onStopTimer();
   }, 1000);
+}
+
+function onStopTimer() {
+  if (secondsToEndAction.textContent === '00') {
+    clearInterval(timerId);
+  }
 }
 
 function onShowTimeToEndAction({ days, hours, minutes, seconds }) {
