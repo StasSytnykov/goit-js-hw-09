@@ -9,11 +9,6 @@ const daysToEndAction = document.querySelector('[data-days]');
 const hoursToEndAction = document.querySelector('[data-hours]');
 const minutesToEndAction = document.querySelector('[data-minutes]');
 const secondsToEndAction = document.querySelector('[data-seconds]');
-let timerId = null;
-
-inputButton.addEventListener('click', onGetTimeToEndAction);
-inputButton.setAttribute('disabled', 'true');
-
 let selectedDate = 0;
 
 const options = {
@@ -29,29 +24,64 @@ const options = {
     }
 
     inputButton.removeAttribute('disabled');
-    selectedDate = selectedDates[0].getTime();
+    return (selectedDate = selectedDates[0].getTime());
   },
 };
 
-const fp = flatpickr(myInput, options); // flatpickr
+const fp = flatpickr(myInput, options);
 
-function onGetTimeToEndAction() {
-  timerId = setInterval(() => {
-    const time = Date.now();
-    const currentTime = selectedDate - time;
-    const { days, hours, minutes, seconds } = convertMs(currentTime);
+class Timer {
+  constructor({ onTick }) {
+    this.timerId = null;
 
-    onShowTimeToEndAction({ days, hours, minutes, seconds });
+    this.onTick = onTick;
+  }
 
-    onStopTimer();
-  }, 1000);
-}
+  startTimer() {
+    this.timerId = setInterval(() => {
+      const currentTime = Date.now();
+      const deltaTime = selectedDate - currentTime;
+      const time = this.convertMs(deltaTime);
 
-function onStopTimer() {
-  if (secondsToEndAction.textContent === '00') {
-    clearInterval(timerId);
+      this.onTick(time);
+
+      this.stopTimer();
+    }, 1000);
+  }
+
+  stopTimer() {
+    if (secondsToEndAction.textContent === '00') {
+      clearInterval(this.timerId);
+    }
+  }
+
+  convertMs(ms) {
+    // Number of milliseconds per unit of time
+    const second = 1000;
+    const minute = second * 60;
+    const hour = minute * 60;
+    const day = hour * 24;
+
+    // Remaining days
+    const days = this.addLeadingZero(Math.floor(ms / day));
+    // Remaining hours
+    const hours = this.addLeadingZero(Math.floor((ms % day) / hour));
+    // Remaining minutes
+    const minutes = this.addLeadingZero(Math.floor(((ms % day) % hour) / minute));
+    // Remaining seconds
+    const seconds = this.addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
+
+    return { days, hours, minutes, seconds };
+  }
+
+  addLeadingZero(value) {
+    return String(value).padStart(2, '0');
   }
 }
+
+const timer = new Timer({
+  onTick: onShowTimeToEndAction,
+});
 
 function onShowTimeToEndAction({ days, hours, minutes, seconds }) {
   daysToEndAction.textContent = days;
@@ -60,25 +90,5 @@ function onShowTimeToEndAction({ days, hours, minutes, seconds }) {
   secondsToEndAction.textContent = seconds;
 }
 
-function convertMs(ms) {
-  // Number of milliseconds per unit of time
-  const second = 1000;
-  const minute = second * 60;
-  const hour = minute * 60;
-  const day = hour * 24;
-
-  // Remaining days
-  const days = addLeadingZero(Math.floor(ms / day));
-  // Remaining hours
-  const hours = addLeadingZero(Math.floor((ms % day) / hour));
-  // Remaining minutes
-  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
-  // Remaining seconds
-  const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
-
-  return { days, hours, minutes, seconds };
-}
-
-function addLeadingZero(value) {
-  return String(value).padStart(2, '0');
-}
+inputButton.addEventListener('click', timer.startTimer.bind(timer));
+inputButton.setAttribute('disabled', 'true');
