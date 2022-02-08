@@ -31,15 +31,29 @@ const options = {
 const fp = flatpickr(myInput, options);
 
 class Timer {
-  constructor({ onTick }) {
+  constructor({ onTick, onStart }) {
     this.timerId = null;
+    this.isActive = false;
 
     this.onTick = onTick;
+    this.onStart = onStart;
   }
 
   startTimer() {
+    if (this.isActive) {
+      return;
+    }
+
+    this.isActive = true;
+
+    let currentTime = Date.now();
+    const startTime = selectedDate - currentTime;
+    const convertTime = this.convertMs(startTime);
+
+    this.onStart(convertTime);
+
     this.timerId = setInterval(() => {
-      const currentTime = Date.now();
+      currentTime = Date.now();
       const deltaTime = selectedDate - currentTime;
       const time = this.convertMs(deltaTime);
 
@@ -50,7 +64,12 @@ class Timer {
   }
 
   stopTimer() {
-    if (secondsToEndAction.textContent === '00') {
+    if (
+      (secondsToEndAction.textContent === '00') &
+      (minutesToEndAction.textContent === '00') &
+      (hoursToEndAction.textContent === '00') &
+      (daysToEndAction.textContent === '00')
+    ) {
       clearInterval(this.timerId);
     }
   }
@@ -81,6 +100,7 @@ class Timer {
 
 const timer = new Timer({
   onTick: onShowTimeToEndAction,
+  onStart: onShowTimeToEndAction,
 });
 
 function onShowTimeToEndAction({ days, hours, minutes, seconds }) {
