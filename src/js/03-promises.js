@@ -25,7 +25,7 @@ function onFormSubmit(event) {
   let totalDelay = 0;
 
   for (let i = 1; i <= amount.value; i += 1) {
-    totalDelay = delayValue + Number(step.value) * i;
+    totalDelay = delayValue + Number(step.value) * (i - 1);
 
     createPromise(i, totalDelay)
       .then(resolve => Notify.success(resolve))
